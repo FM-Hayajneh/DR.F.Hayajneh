@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>العيادة البيطرية الذكية - تحليل الدجاج بالفيديو</title>
+    <meta name="description" content="نظام تحليل شامل للدجاج عبر الفيديو المباشر باستخدام الذكاء الاصطناعي">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
+    <link rel="stylesheet" href="/chicken-disease-site/video-application-2/video-clinic.css">
+</head>
+
+<body>
+
+    <header class="header" id="mainHeader">
+        <div class="header-fixed-text">قد يقال</div>
+        <div class="container">
+            <div class="header-content">
+                <a href="../index.html" class="logo">
+                    <i class="fas fa-stethoscope"></i>
+                    <span>العيادة البيطرية الذكية</span>
+                </a>
+
+                <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="فتح القائمة">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+
+                <nav id="mainNav" class="main-nav">
+                    <ul>
+                        <li><a href="../index.html" class="nav-link">الرئيسية</a></li>
+                        <li><a href="#record" class="nav-link active">التصوير المباشر</a></li>
+                        <li><a href="#results" class="nav-link">النتائج</a></li>
+                    </ul>
+                </nav>
+
+                <div class="auth-buttons">
+                    <button class="btn btn-outline" onclick="window.location.href='../index.html'">
+                        <i class="fas fa-home"></i>
+                        <span>الرئيسية</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h1 class="hero-title animate-fade-in">
+                    تحليل الدجاج
+                    <span class="gradient-text">بالتصوير المباشر</span>
+                </h1>
+                <p class="hero-description animate-fade-in-delay-1">
+                    نظام متكامل يعتمد على الذكاء الاصطناعي لتحليل حركة وسلوك الدجاج عبر الفيديو المباشر لتقديم تشخيص دقيق لحالتها الصحية.
+                </p>
+
+                <div class="hero-stats animate-fade-in-delay-2">
+                    <div class="stat-item">
+                        <div class="stat-number" data-count="4">0</div>
+                        <div class="stat-label">مجالات تحليل</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" data-count="60">0</div>
+                        <div class="stat-label">ثانية تحليل</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" data-count="12">0</div>
+                        <div class="stat-label">مؤشر أداء</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="hero-bg-animation">
+            <div class="floating-icon" style="left: 10%; top: 20%; animation-delay: 0s;"><i class="fas fa-walking"></i></div>
+            <div class="floating-icon" style="left: 80%; top: 30%; animation-delay: 1s;"><i class="fas fa-running"></i></div>
+            <div class="floating-icon" style="left: 20%; top: 70%; animation-delay: 2s;"><i class="fas fa-feather"></i></div>
+            <div class="floating-icon" style="left: 75%; top: 75%; animation-delay: 1.5s;"><i class="fas fa-chart-line"></i></div>
+        </div>
+    </section>
+
+    <main class="main-content" id="record">
+        <div class="container">
+            <div class="content-wrapper">
+
+                <section class="recording-section" id="recordingSection">
+                    <div class="section-title">
+                        <h2>الخطوة 1: التصوير والتحليل المباشر</h2>
+                        <p>قم بتصوير الدجاجة للبدء في التحليل الفوري للحركة والسلوك</p>
+                    </div>
+                    
+                    <div class="video-container">
+                        <div class="video-preview" id="videoPreview">
+                            <video id="previewVideo" autoplay muted playsinline></video>
+                            <div class="video-overlay" id="videoOverlay">
+                                <div class="overlay-content">
+                                    <i class="fas fa-camera"></i>
+                                    <h3>اضغط للبدء</h3>
+                                    <p>انقر على زر بدء التصوير لتفعيل الكاميرا</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="recording-controls">
+                            <div class="camera-controls">
+                                <button class="btn btn-outline" id="switchCameraBtn" style="display: none;">
+                                    <i class="fas fa-sync-alt"></i>
+                                    تبديل الكاميرا
+                                </button>
+                            </div>
+
+                            <div class="main-controls">
+                                <button class="btn btn-primary btn-large" id="startRecordingBtn">
+                                    <i class="fas fa-record-vinyl"></i>
+                                    بدء التصوير والتحليل
+                                </button>
+                                <button class="btn btn-danger btn-large" id="stopRecordingBtn" style="display: none;">
+                                    <i class="fas fa-stop"></i>
+                                    إيقاف وإنهاء التحليل
+                                </button>
+                            </div>
+
+                            <div class="recording-timer" id="recordingTimer" style="display: none;">
+                                <i class="fas fa-circle"></i>
+                                <span id="timerDisplay">00:00</span>
+                                <span class="recording-text">جاري التحليل المباشر...</span>
+                            </div>
+                        </div>
+
+                        <div class="analysis-progress" id="analysisProgress" style="display: none;">
+                            <div class="progress-header">
+                                <i class="fas fa-chart-bar"></i>
+                                <h4>جاري التحليل في الوقت الحقيقي</h4>
+                            </div>
+                            <div class="progress-bars">
+                                <div class="progress-item">
+                                    <span class="progress-label">معالجة الإطارات</span>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" id="processingProgress" style="width: 0%"></div>
+                                    </div>
+                                    <span class="progress-value" id="processingValue">0%</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="live-indicators">
+                            <div class="indicators-title">
+                                <i class="fas fa-heartbeat"></i>
+                                المؤشرات الحية
+                            </div>
+                            <div class="indicators-grid" id="liveIndicators">
+                                <div class="indicator-item">
+                                    <div class="indicator-icon">
+                                        <i class="fas fa-heartbeat"></i>
+                                    </div>
+                                    <div class="indicator-label">الحالة الحالية</div>
+                                    <div class="indicator-value">جاري التهيئة</div>
+                                </div>
+                                <div class="indicator-item">
+                                    <div class="indicator-icon">
+                                        <i class="fas fa-chart-line"></i>
+                                    </div>
+                                    <div class="indicator-label">ثقة التحليل</div>
+                                    <div class="indicator-value">0%</div>
+                                </div>
+                                <div class="indicator-item">
+                                    <div class="indicator-icon">
+                                        <i class="fas fa-film"></i>
+                                    </div>
+                                    <div class="indicator-label">الإطارات المحللة</div>
+                                    <div class="indicator-value">0</div>
+                                </div>
+                                <div class="indicator-item">
+                                    <div class="indicator-icon">
+                                        <i class="fas fa-clock"></i>
+                                    </div>
+                                    <div class="indicator-label">مدة التحليل</div>
+                                    <div class="indicator-value">0s</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="instructions-section">
+                            <h4 class="instructions-title">
+                                <i class="fas fa-lightbulb"></i>
+                                نصائح للتصوير المثالي
+                            </h4>
+                            <ul class="instructions-list">
+                                <li>
+                                    <span class="bullet">•</span>
+                                    <span>تأكد من وجود إضاءة كافية وواضحة.</span>
+                                </li>
+                                <li>
+                                    <span class="bullet">•</span>
+                                    <span>اجعل الدجاجة كاملة في إطار التصوير.</span>
+                                </li>
+                                <li>
+                                    <span class="bullet">•</span>
+                                    <span>صور الدجاجة وهي تتحرك لتقييم المشي.</span>
+                                </li>
+                                <li>
+                                    <span class="bullet">•</span>
+                                    <span>مدة التصوير المقترحة: 30-60 ثانية.</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="results-section" id="resultsSection" style="display: none;">
+                    <div class="results-header">
+                        <div class="section-title">
+                            <h2>الخطوة 2: التقرير الطبي المفصل</h2>
+                            <p>نتائج التحليل بناءً على المعطيات والذكاء الاصطناعي</p>
+                        </div>
+                        <div class="results-actions">
+                            <button class="btn btn-outline" onclick="window.print()">
+                                <i class="fas fa-print"></i> طباعة
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="confidence-indicator">
+                        <div class="confidence-header">
+                            <i class="fas fa-chart-line"></i>
+                            <h3>مؤشر الثقة الكلي</h3>
+                            <span class="confidence-value" id="overallConfidence">0%</span>
+                        </div>
+                        <div class="confidence-bar">
+                            <div class="confidence-fill" id="overallConfidenceBar" style="width: 0%;"></div>
+                        </div>
+                    </div>
+
+                    <div class="overall-score-card">
+                        <div class="score-header">
+                            <i class="fas fa-chart-pie"></i>
+                            <h3>التقييم العام للصحة والحركة</h3>
+                            <div class="total-score" id="totalScore">--%</div>
+                        </div>
+                        <div class="score-breakdown" id="scoreBreakdown">
+                            <!-- سيتم ملؤها ديناميكياً -->
+                        </div>
+                    </div>
+
+                    <div class="detailed-analysis" id="detailedAnalysis">
+                        <!-- سيتم ملؤها ديناميكياً -->
+                    </div>
+
+                    <div class="action-buttons">
+                        <button class="btn btn-primary" id="newAnalysisBtn">
+                            <i class="fas fa-redo"></i>
+                            تحليل جديد
+                        </button>
+                    </div>
+                </section>
+
+                <section class="info-section" id="infoSection">
+                    <h3 class="info-title"><i class="fas fa-info-circle"></i> تنويه هام</h3>
+                    <ul class="info-list">
+                        <li><span class="bullet">•</span> هذا النظام هو أداة مساعدة للتشخيص ولا يغني عن استشارة الطبيب البيطري.</li>
+                        <li><span class="bullet">•</span> دقة النتائج تعتمد بشكل كبير على جودة ووضوح التصوير.</li>
+                    </ul>
+                </section>
+
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>© 2025 العيادة البيطرية الذكية - جميع الحقوق محفوظة</p>
+        </div>
+    </footer>
+
+    <!-- قاعدة البيانات (يجب تحميلها أولاً) -->
+    <script src="poultry-diseases-db.js"></script>
+    
+    <!-- الكود الرئيسي -->
+    <script>
+    // --- 1. إعدادات النموذج والواجهة ---
+    const MODEL_URL = "https://teachablemachine.withgoogle.com/models/etlPTgo5t/"; 
+    let model, maxPredictions;
+    let isAnalyzing = false;
+    let stream = null;
+    let videoElement = document.getElementById('previewVideo');
+    let canvas = document.createElement('canvas');
+    let ctx = canvas.getContext('2d');
+    let animationFrameId;
+    let startTime;
+    let timerInterval;
+    
+    // عناصر الواجهة
+    const startBtn = document.getElementById('startRecordingBtn');
+    const stopBtn = document.getElementById('stopRecordingBtn');
+    const switchCameraBtn = document.getElementById('switchCameraBtn');
+    const videoOverlay = document.getElementById('videoOverlay');
+    const recordingTimer = document.getElementById('recordingTimer');
+    const timerDisplay = document.getElementById('timerDisplay');
+    const analysisProgress = document.getElementById('analysisProgress');
+    const processingProgress = document.getElementById('processingProgress');
+    const processingValue = document.getElementById('processingValue');
+    const resultsSection = document.getElementById('resultsSection');
+    const recordingSection = document.getElementById('recordingSection');
+    const totalScoreEl = document.getElementById('totalScore');
+    const scoreBreakdownEl = document.getElementById('scoreBreakdown');
+    const detailedAnalysisEl = document.getElementById('detailedAnalysis');
+    const newAnalysisBtn = document.getElementById('newAnalysisBtn');
+    const overallConfidence = document.getElementById('overallConfidence');
+    const overallConfidenceBar = document.getElementById('overallConfidenceBar');
+    const liveIndicators = document.getElementById('liveIndicators');
+
+    // متغيرات لتخزين النتائج التراكمية
+    let cumulativePredictions = {};
+    let totalFramesAnalyzed = 0;
+    let currentFacingMode = 'environment'; // الكاميرا الخلفية افتراضياً
+    let analysisStartTime = 0;
+
+    // --- 2. تهيئة النظام وتحميل النموذج ---
+    async function init() {
+        showToast('جاري تحميل نموذج الذكاء الاصطناعي...', 'info');
+        startBtn.disabled = true;
+        try {
+            model = await tmImage.load(MODEL_URL + "model.json", MODEL_URL + "metadata.json");
+            maxPredictions = model.getTotalClasses();
+            startBtn.disabled = false;
+            startBtn.innerHTML = '<i class="fas fa-record-vinyl"></i> بدء التصوير والتحليل';
+            showToast('تم تحميل النموذج بنجاح. جاهز للتصوير!', 'success');
+            
+            // التحقق من وجود كاميرات متعددة
+            const devices = await navigator.mediaDevices.enumerateDevices();
+            const videoDevices = devices.filter(device => device.kind === 'videoinput');
+            if (videoDevices.length > 1) {
+                switchCameraBtn.style.display = 'inline-flex';
+            }
+            
+        } catch (error) {
+            console.error("خطأ في تحميل النموذج:", error);
+            showToast('فشل تحميل النموذج. تأكد من الإنترنت.', 'error');
+            startBtn.innerHTML = '<i class="fas fa-exclamation-triangle"></i> خطأ في التحميل';
+        }
+    }
+
+    // --- 3. التحكم في الكاميرا والتصوير ---
+    async function startCamera() {
+        try {
+            const constraints = {
+                video: {
+                    facingMode: currentFacingMode,
+                    width: { ideal: 640 },
+                    height: { ideal: 480 }
+                }
+            };
+            stream = await navigator.mediaDevices.getUserMedia(constraints);
+            videoElement.srcObject = stream;
+            
+            videoElement.onloadedmetadata = () => {
+                videoOverlay.classList.add('hidden');
+                startBtn.style.display = 'none';
+                stopBtn.style.display = 'inline-flex';
+                recordingTimer.style.display = 'flex';
+                analysisProgress.style.display = 'block';
+                
+                if (currentFacingMode === 'user') {
+                    videoElement.classList.remove('rear-camera');
+                } else {
+                    videoElement.classList.add('rear-camera');
+                }
+                
+                startAnalysis();
+                startTimer();
+            };
+        } catch (err) {
+            console.error("خطأ في الوصول للكاميرا:", err);
+            showToast('تعذر الوصول للكاميرا. يرجى منح الصلاحيات.', 'error');
+        }
+    }
+
+    function stopCamera() {
+        if (stream) {
+            stream.getTracks().forEach(track => track.stop());
+            videoElement.srcObject = null;
+        }
+        videoOverlay.classList.remove('hidden');
+        startBtn.style.display = 'inline-flex';
+        stopBtn.style.display = 'none';
+        recordingTimer.style.display = 'none';
+        analysisProgress.style.display = 'none';
+        stopTimer();
+        stopAnalysis();
+    }
+
+    async function switchCamera() {
+        stopCamera();
+        currentFacingMode = currentFacingMode === 'environment' ? 'user' : 'environment';
+        await startCamera();
+    }
+
+    // --- 4. التحليل المباشر (Real-time Analysis) ---
+    function startAnalysis() {
+        isAnalyzing = true;
+        cumulativePredictions = {};
+        totalFramesAnalyzed = 0;
+        analysisStartTime = Date.now();
+        canvas.width = videoElement.videoWidth || 640;
+        canvas.height = videoElement.videoHeight || 480;
+        
+        analyzeFrameLoop();
+    }
+
+    function analyzeFrameLoop() {
+        if (!isAnalyzing) return;
+
+        ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+        
+        // تحليل الإطار
+        model.predict(canvas).then(prediction => {
+            let bestClass = null;
+            let maxProb = 0;
+            for (let i = 0; i < maxPredictions; i++) {
+                if (prediction[i].probability > maxProb) {
+                    maxProb = prediction[i].probability;
+                    bestClass = prediction[i].className;
+                }
+            }
+
+            if (maxProb > 0.6) { // ثقة > 60%
+                cumulativePredictions[bestClass] = (cumulativePredictions[bestClass] || 0) + 1;
+                totalFramesAnalyzed++;
+                
+                // تحديث شريط التقدم
+                const progress = (totalFramesAnalyzed % 100);
+                processingProgress.style.width = `${progress}%`;
+                processingValue.textContent = `جاري التحليل... ${totalFramesAnalyzed} إطار`;
+                
+                // تحديث المؤشرات الحية
+                updateLiveIndicators(bestClass, maxProb);
+            }
+        }).catch(error => {
+            console.warn('خطأ في تحليل الإطار:', error);
+        });
+
+        // تحليل 5 إطارات في الثانية تقريباً
+        setTimeout(() => {
+            animationFrameId = requestAnimationFrame(analyzeFrameLoop);
+        }, 200);
+    }
+    
+    function updateLiveIndicators(bestClass, confidence) {
+        if (!liveIndicators) return;
+        
+        const confidencePercent = Math.round(confidence * 100);
+        const elapsed = Math.round((Date.now() - analysisStartTime) / 1000);
+        
+        liveIndicators.innerHTML = `
+            <div class="indicator-item">
+                <div class="indicator-icon" style="background: ${confidence > 0.7 ? 'var(--gradient-success)' : 'var(--gradient-warning)'};">
+                    <i class="fas fa-heartbeat"></i>
+                </div>
+                <div class="indicator-label">الحالة الحالية</div>
+                <div class="indicator-value">${getDiseaseName(bestClass)}</div>
+            </div>
+            <div class="indicator-item">
+                <div class="indicator-icon" style="background: var(--gradient-success);">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="indicator-label">ثقة التحليل</div>
+                <div class="indicator-value">${confidencePercent}%</div>
+            </div>
+            <div class="indicator-item">
+                <div class="indicator-icon" style="background: var(--gradient-primary);">
+                    <i class="fas fa-film"></i>
+                </div>
+                <div class="indicator-label">الإطارات المحللة</div>
+                <div class="indicator-value">${totalFramesAnalyzed}</div>
+            </div>
+            <div class="indicator-item">
+                <div class="indicator-icon" style="background: var(--gradient-secondary);">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="indicator-label">مدة التحليل</div>
+                <div class="indicator-value">${elapsed}s</div>
+            </div>
+        `;
+    }
+    
+    function getDiseaseName(diseaseCode) {
+        if (!window.poultryDB) return diseaseCode;
+        
+        try {
+            const info = window.poultryDB.getDiseaseInfo(diseaseCode);
+            return info.name || diseaseCode;
+        } catch (error) {
+            return diseaseCode;
+        }
+    }
+
+    function stopAnalysis() {
+        isAnalyzing = false;
+        
+        if (animationFrameId) {
+            cancelAnimationFrame(animationFrameId);
+            animationFrameId = null;
+        }
+        
+        finishAnalysis();
+    }
+
+    // --- 5. إنهاء التحليل وعرض النتائج ---
+    function finishAnalysis() {
+        if (totalFramesAnalyzed === 0) {
+            showToast('لم يتم تحليل أي إطارات. حاول مرة أخرى.', 'warning');
+            return;
+        }
+
+        displayResults();
+    }
+
+    // --- 6. عرض النتائج (باستخدام قاعدة البيانات) ---
+    async function displayResults() {
+        console.log('📊 عرض النتائج...');
+        
+        // حساب النتائج النهائية
+        let winnerClass = "Healthy_Chicken";
+        let maxVotes = 0;
+        
+        for (const [className, votes] of Object.entries(cumulativePredictions)) {
+            if (votes > maxVotes) {
+                maxVotes = votes;
+                winnerClass = className;
+            }
+        }
+        
+        const confidence = Math.round((maxVotes / totalFramesAnalyzed) * 100);
+        
+        const result = {
+            className: winnerClass,
+            confidence: confidence,
+            votes: maxVotes,
+            totalFrames: totalFramesAnalyzed
+        };
+        
+        console.log('🏆 النتيجة النهائية:', result);
+        
+        if (!result || result.totalFrames === 0) {
+            showToast('لم يتم تحليل أي إطارات. حاول مرة أخرى.', 'warning');
+            return;
+        }
+        
+        // جلب معلومات المرض مع تحقق آمن
+        let diseaseInfo;
+        try {
+            if (window.poultryDB && typeof window.poultryDB.getDiseaseInfo === 'function') {
+                diseaseInfo = window.poultryDB.getDiseaseInfo(result.className);
+                console.log('✅ معلومات المرض:', diseaseInfo);
+            } else {
+                throw new Error('قاعدة البيانات غير متاحة');
+            }
+        } catch (dbError) {
+            console.warn('⚠️ فشل جلب معلومات المرض:', dbError);
+            diseaseInfo = getFallbackDiseaseInfo(result.className);
+        }
+        
+        const isHealthy = diseaseInfo.riskLevel === "آمن (Safe)";
+        
+        // إظهار قسم النتائج
+        recordingSection.style.display = 'none';
+        resultsSection.style.display = 'block';
+        
+        // تحديث مؤشر الثقة
+        overallConfidence.textContent = `${result.confidence}%`;
+        overallConfidenceBar.style.width = `${result.confidence}%`;
+        
+        // تحديث النتيجة الإجمالية
+        let scoreColor = isHealthy ? '#2e7d32' : '#c62828';
+        totalScoreEl.textContent = `${result.confidence}%`;
+        totalScoreEl.style.color = scoreColor;
+        totalScoreEl.style.background = 'none';
+        
+        // تحديث تفاصيل النتيجة
+        scoreBreakdownEl.innerHTML = `
+            <div class="score-item">
+                <span class="score-label">الحالة المشخصة</span>
+                <div class="score-bar" style="background: ${scoreColor}20;">
+                    <div class="score-fill animate" style="width: ${result.confidence}%; background: ${scoreColor};"></div>
+                </div>
+                <span class="score-value" style="color: ${scoreColor};">${result.confidence}%</span>
+            </div>
+            <div style="margin-top: 15px; font-size: 1.1rem; font-weight: bold; color: ${scoreColor}; text-align: center;">
+                ${diseaseInfo.name}
+            </div>
+            <div style="margin-top: 10px; text-align: center; color: #666;">
+                تم تحليل ${result.totalFrames} إطار خلال ${Math.round((Date.now() - analysisStartTime) / 1000)} ثانية
+            </div>
+        `;
+        
+        // إنشاء التحليل التفصيلي
+        let detailsHtml = '';
+        
+        // بطاقة الأعراض
+        detailsHtml += `
+            <div class="diagnosis-card active">
+                <div class="card-header">
+                    <div class="card-title">
+                        <i class="fas fa-binoculars"></i>
+                        الأعراض المرصودة بالحركة
+                    </div>
+                    <span class="toggle-icon">
+                        <i class="fas fa-chevron-down"></i>
+                    </span>
+                </div>
+                <div class="card-body">
+                    <ul class="scientific-list">
+                        ${diseaseInfo.symptoms.map(s => 
+                            `<li>${s}</li>`
+                        ).join('')}
+                    </ul>
+                    <div class="source-box">
+                        <i class="fas fa-microscope"></i>
+                        مصدر التشخيص: تحليل حركة وسلوك الدجاج
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // بطاقة التوصيات
+        if (!isHealthy) {
+            detailsHtml += `
+                <div class="diagnosis-card active">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="fas fa-pills"></i>
+                            التوصيات العلاجية
+                        </div>
+                        <span class="toggle-icon">
+                            <i class="fas fa-chevron-down"></i>
+                        </span>
+                    </div>
+                    <div class="card-body">
+                        <div class="treatment-section">
+                            <div class="treatment-item">
+                                <strong>العلاج المقترح:</strong>
+                                ${Array.isArray(diseaseInfo.treatment) 
+                                    ? `<ol class="scientific-list">
+                                        ${diseaseInfo.treatment.map(t => `<li>${t}</li>`).join('')}
+                                       </ol>`
+                                    : `<p>${diseaseInfo.treatment}</p>`
+                                }
+                            </div>
+                        </div>
+                        <div class="emergency-level ${diseaseInfo.riskLevel.includes('خطير') ? 'عالية' : 'متوسطة'}">
+                            مستوى الاستعجال: ${diseaseInfo.riskLevel}
+                        </div>
+                    </div>
+                </div>
+            `;
+        } else {
+            detailsHtml += `
+                <div class="diagnosis-card active">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="fas fa-shield-alt"></i>
+                            الحالة الصحية العامة
+                        </div>
+                        <span class="toggle-icon">
+                            <i class="fas fa-chevron-down"></i>
+                        </span>
+                    </div>
+                    <div class="card-body">
+                        <div style="background: #e8f5e9; padding: 20px; border-radius: 8px; border-right: 4px solid #2e7d32;">
+                            <div style="display: flex; align-items: center; gap: 15px;">
+                                <i class="fas fa-check-circle" style="font-size: 2rem; color: #2e7d32;"></i>
+                                <div>
+                                    <h4 style="color: #2e7d32; margin: 0 0 5px 0;">حالة صحية جيدة</h4>
+                                    <p style="color: #2e7d32; margin: 0;">الدجاجة تبدو في حالة صحية جيدة. استمر في الرعاية الروتينية.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // إضافة إحصائيات التحليل
+        detailsHtml += `
+            <div class="diagnosis-card active">
+                <div class="card-header">
+                    <div class="card-title">
+                        <i class="fas fa-chart-line"></i>
+                        إحصائيات التحليل
+                    </div>
+                    <span class="toggle-icon">
+                        <i class="fas fa-chevron-down"></i>
+                    </span>
+                </div>
+                <div class="card-body">
+                    <div class="result-grid">
+                        <div class="result-item">
+                            <span class="result-label">عدد الإطارات المحللة</span>
+                            <span class="result-value">${result.totalFrames}</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">مدة التحليل</span>
+                            <span class="result-value">${Math.round((Date.now() - analysisStartTime) / 1000)} ثانية</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">نسبة الثقة</span>
+                            <div class="confidence-indicator">
+                                <div class="confidence-bar">
+                                    <div class="confidence-fill" style="width: ${result.confidence}%;"></div>
+                                </div>
+                                <span class="confidence-percentage">${result.confidence}%</span>
+                            </div>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">أعلى تصويت</span>
+                            <span class="result-value">${result.votes}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        detailedAnalysisEl.innerHTML = detailsHtml;
+        
+        // تفعيل الأكورديون
+        attachAccordionListeners();
+        
+        // تمرير السكرول للنهاية
+        setTimeout(() => {
+            resultsSection.scrollIntoView({ behavior: 'smooth' });
+        }, 300);
+    }
+
+    // دالة fallback للمعلومات الأساسية
+    function getFallbackDiseaseInfo(diseaseCode) {
+        const fallbackDiseases = {
+            "Healthy_Chicken": {
+                name: "دجاجة سليمة",
+                symptoms: ["حركة طبيعية", "مشي متوازن", "سلوك نشط"],
+                treatment: ["الاستمرار في الرعاية الروتينية"],
+                riskLevel: "آمن (Safe)"
+            },
+            "Marek_Disease": {
+                name: "مرض ماريك",
+                symptoms: ["شلل في الأرجل", "مشي مترنح"],
+                treatment: ["عزل الطيور المصابة", "استشارة طبيب بيطري"],
+                riskLevel: "خطير (Dangerous)"
+            },
+            "Newcastle_Disease": {
+                name: "مرض نيوكاسل",
+                symptoms: ["صعوبة في التنفس", "إسهال أخضر"],
+                treatment: ["تطعيم الطيور", "عزل القطيع"],
+                riskLevel: "خطير جداً (Critical)"
+            },
+            "Coccidiosis": {
+                name: "الكوكسيديا",
+                symptoms: ["إسهال دموي", "خمول عام"],
+                treatment: ["علاج طفيلي", "تحسين النظافة"],
+                riskLevel: "متوسط (Moderate)"
+            }
+        };
+        
+        return fallbackDiseases[diseaseCode] || {
+            name: diseaseCode,
+            symptoms: ["أعراض غير محددة"],
+            treatment: ["يرجى استشارة متخصص"],
+            riskLevel: "غير معروف"
+        };
+    }
+
+    // --- دوال مساعدة ---
+    function attachAccordionListeners() {
+        document.querySelectorAll('.diagnosis-card .card-header').forEach(header => {
+            header.addEventListener('click', () => {
+                const card = header.closest('.diagnosis-card');
+                card.classList.toggle('active');
+            });
+        });
+    }
+
+    function startTimer() {
+        startTime = Date.now();
+        timerInterval = setInterval(() => {
+            const elapsedTime = Date.now() - startTime;
+            const seconds = Math.floor((elapsedTime / 1000) % 60).toString().padStart(2, '0');
+            const minutes = Math.floor((elapsedTime / 1000 / 60)).toString().padStart(2, '0');
+            timerDisplay.textContent = `${minutes}:${seconds}`;
+        }, 1000);
+    }
+
+    function stopTimer() {
+        clearInterval(timerInterval);
+        timerDisplay.textContent = "00:00";
+    }
+
+    function showToast(message, type = 'info') {
+        // إنشاء toast جديد
+        const toast = document.createElement('div');
+        toast.className = `toast toast-${type}`;
+        toast.innerHTML = `
+            <div class="toast-content">
+                <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+                <span>${message}</span>
+            </div>
+            <button class="toast-close"><i class="fas fa-times"></i></button>
+        `;
+        
+        document.body.appendChild(toast);
+        
+        setTimeout(() => toast.classList.add('show'), 10);
+        
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
+        
+        toast.querySelector('.toast-close')?.addEventListener('click', () => {
+            toast.classList.remove('show');
+            setTimeout(() => toast.remove(), 300);
+        });
+    }
+
+    // --- ربط الأحداث وتشغيل النظام ---
+    startBtn.addEventListener('click', startCamera);
+    stopBtn.addEventListener('click', stopCamera);
+    switchCameraBtn.addEventListener('click', switchCamera);
+    newAnalysisBtn.addEventListener('click', () => location.reload());
+    
+    document.addEventListener('DOMContentLoaded', init);
+
+    // (اختياري) وظائف الهيدر والعدادات من الكود الأصلي
+    document.addEventListener('DOMContentLoaded', function() {
+        const header = document.getElementById('mainHeader');
+        const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+        const mainNav = document.getElementById('mainNav');
+        window.addEventListener('scroll', () => header.classList.toggle('scrolled', window.scrollY > 50));
+        mobileMenuToggle?.addEventListener('click', () => {
+            mobileMenuToggle.classList.toggle('active');
+            mainNav.classList.toggle('active');
+        });
+        document.querySelectorAll('.stat-number').forEach(stat => {
+            let start = 0; const target = parseInt(stat.getAttribute('data-count'));
+            const timer = setInterval(() => {
+                start += target / 50; if (start >= target) { stat.textContent = target; clearInterval(timer); } else { stat.textContent = Math.floor(start); }
+            }, 40);
+        });
+        
+        // تحميل محلل الفيديو المحسن
+        const analyzerScript = document.createElement('script');
+        analyzerScript.src = 'video-analyzer.js';
+        analyzerScript.onload = () => {
+            console.log('✅ تم تحميل محلل الفيديو المحسن');
+        };
+        document.head.appendChild(analyzerScript);
+    });
+    </script>
+
+   
+</body>
+</html>

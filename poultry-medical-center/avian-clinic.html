@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>العيادة البيطرية الذكية - تشخيص الدواجن</title>
+    <meta name="description" content="نظام تشخيص شامل يجمع بين تحليل الدجاجة الحية والبراز والأعضاء الداخلية بالذكاء الاصطناعي">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="avian-clinic.css">
+
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+
+<body>
+
+    <header class="header" id="mainHeader">
+        <div class="header-fixed-text">قد يقال</div>
+        <div class="container">
+            <div class="header-content">
+                <a href="../index.html" class="logo">
+                    <i class="fas fa-stethoscope"></i>
+                    <span>العيادة البيطرية الذكية</span>
+                </a>
+
+                <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="فتح القائمة">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+
+                <nav id="mainNav" class="main-nav">
+                    <ul>
+                        <li><a href="../index.html" class="nav-link">الرئيسية</a></li>
+                        <li><a href="#upload" class="nav-link active">رفع الصور</a></li>
+                        <li><a href="#results" class="nav-link">النتائج</a></li>
+                    </ul>
+                </nav>
+
+                <div class="auth-buttons">
+                    <button class="btn btn-outline" onclick="window.location.href='../index.html'">
+                        <i class="fas fa-home"></i>
+                        <span>الرئيسية</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h1 class="hero-title animate-fade-in">
+                    التشخيص البيطري
+                    <span class="gradient-text">الشامل</span>
+                </h1>
+                <p class="hero-description animate-fade-in-delay-1">
+                    نظام متكامل يعتمد على الذكاء الاصطناعي لتحليل الصور المتعددة (المظهر العام، الفضلات، التشريح) لتقديم أدق تشخيص ممكن.
+                </p>
+
+                <div class="hero-stats animate-fade-in-delay-2">
+                    <div class="stat-item">
+                        <div class="stat-number" data-count="3">0</div>
+                        <div class="stat-label">محاور للتحليل</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" data-count="98">0</div>
+                        <div class="stat-label">دقة النموذج %</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" data-count="24">0</div>
+                        <div class="stat-label">ساعة خدمة</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="hero-bg-animation">
+            <div class="floating-icon" style="left: 10%; top: 20%; animation-delay: 0s;"><i class="fas fa-dove"></i></div>
+            <div class="floating-icon" style="left: 80%; top: 30%; animation-delay: 1s;"><i class="fas fa-vial"></i></div>
+            <div class="floating-icon" style="left: 20%; top: 70%; animation-delay: 2s;"><i class="fas fa-heartbeat"></i></div>
+            <div class="floating-icon" style="left: 75%; top: 75%; animation-delay: 1.5s;"><i class="fas fa-file-medical-alt"></i></div>
+        </div>
+    </section>
+
+    <main class="main-content" id="upload">
+        <div class="container">
+            <div class="content-wrapper">
+
+                <section class="upload-section" id="uploadSection">
+                    <div class="section-title">
+                        <h2>الخطوة 1: رفع الصور للتحليل</h2>
+                        <p>يمكنك رفع أكثر من صورة لكل فئة لزيادة دقة التشخيص</p>
+                    </div>
+
+                    <div class="triple-upload-grid">
+                        
+                        <div class="upload-card" id="chickenCard">
+                            <div class="upload-header">
+                                <i class="fas fa-dove"></i> 
+                                <h3>صور الدجاجة (المظهر)</h3>
+                            </div>
+                            <input type="file" id="chickenFileInput" accept="image/*" class="file-input" multiple hidden>
+                            
+                            <div class="upload-area" id="chickenUploadArea" onclick="document.getElementById('chickenFileInput').click()">
+                                <div class="upload-icon"><i class="fas fa-camera"></i></div>
+                                <p>اضغط لرفع صورة أو أكثر</p>
+                            </div>
+                            
+                            <div class="preview-area" id="chickenPreviewArea" style="display: none;">
+                                <div class="preview-grid" id="chickenPreviewGrid"></div>
+                                <p class="preview-text" onclick="document.getElementById('chickenFileInput').click()">
+                                    <i class="fas fa-plus-circle"></i> إضافة صور أخرى
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="upload-card" id="fecesCard">
+                            <div class="upload-header">
+                                <i class="fas fa-vial"></i> 
+                                <h3>صور البراز (العينة)</h3>
+                            </div>
+                            <input type="file" id="fecesFileInput" accept="image/*" class="file-input" multiple hidden>
+                            
+                            <div class="upload-area" id="fecesUploadArea" onclick="document.getElementById('fecesFileInput').click()">
+                                <div class="upload-icon"><i class="fas fa-flask"></i></div>
+                                <p>اضغط لرفع صورة أو أكثر</p>
+                            </div>
+                            
+                            <div class="preview-area" id="fecesPreviewArea" style="display: none;">
+                                <div class="preview-grid" id="fecesPreviewGrid"></div>
+                                <p class="preview-text" onclick="document.getElementById('fecesFileInput').click()">
+                                    <i class="fas fa-plus-circle"></i> إضافة صور أخرى
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="upload-card" id="organCard">
+                            <div class="upload-header">
+                                <i class="fas fa-heartbeat"></i> 
+                                <h3>صور الأعضاء (تشريح)</h3>
+                            </div>
+                            <div class="organ-select-wrapper">
+                                <label for="organSelect">حدد العضو المراد فحصه:</label>
+                                <select id="organSelect" class="form-select">
+                                    <option value="" disabled selected>-- اختر العضو --</option>
+                                    <option value="heart">القلب</option>
+                                    <option value="liver">الكبد</option>
+                                    <option value="intestine">الأمعاء</option>
+                                    <option value="proventriculus">المعدة الحقيقية</option>
+                                </select>
+                            </div>
+                            <input type="file" id="organFileInput" accept="image/*" class="file-input" multiple hidden>
+                            
+                            <div class="upload-area" id="organUploadArea" onclick="document.getElementById('organFileInput').click()">
+                                <div class="upload-icon"><i class="fas fa-microscope"></i></div>
+                                <p>اضغط لرفع صورة أو أكثر</p>
+                            </div>
+                            
+                            <div class="preview-area" id="organPreviewArea" style="display: none;">
+                                <div class="preview-grid" id="organPreviewGrid"></div>
+                                <p class="preview-text" onclick="document.getElementById('organFileInput').click()">
+                                    <i class="fas fa-plus-circle"></i> إضافة صور أخرى
+                                </p>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="action-buttons" id="actionButtons">
+                        <button class="btn btn-primary" id="analyzeBtn" disabled>
+                            <span id="analyzeText">انتظار تهيئة النظام...</span>
+                            <span id="loadingSpinner" class="spinner" style="display: none;">
+                                <i class="fas fa-circle-notch fa-spin"></i> جاري التحليل الذكي...
+                            </span>
+                        </button>
+                        <button class="btn btn-outline" onclick="location.reload()">تحليل جديد</button>
+                    </div>
+                </section>
+
+                <section class="results-section" id="resultsSection" style="display: none;">
+                    <div class="results-header">
+                        <div class="section-title">
+                            <h2>الخطوة 2: التقرير الطبي المفصل</h2>
+                            <p>نتائج التحليل بناءً على المعطيات والذكاء الاصطناعي</p>
+                        </div>
+                        <div class="results-actions">
+                            <button class="btn btn-outline" onclick="window.print()">
+                                <i class="fas fa-print"></i> طباعة
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="confidence-indicator">
+                        <div class="confidence-header">
+                            <i class="fas fa-chart-line"></i>
+                            <h3>مؤشر الثقة الكلي</h3>
+                            <span class="confidence-value" id="overallConfidence">0%</span>
+                        </div>
+                        <div class="confidence-bar">
+                            <div class="confidence-fill" id="overallConfidenceBar" style="width: 0%;"></div>
+                        </div>
+                    </div>
+
+                    <div class="comprehensive-results" id="comprehensiveResults">
+                        </div>
+                </section>
+
+                <section class="info-section" id="infoSection">
+                    <h3 class="info-title"><i class="fas fa-info-circle"></i> تنويه هام</h3>
+                    <ul class="info-list">
+                        <li><span class="bullet">•</span> هذا النظام هو أداة مساعدة للتشخيص ولا يغني عن استشارة الطبيب البيطري.</li>
+                        <li><span class="bullet">•</span> دقة النتائج تعتمد بشكل كبير على جودة ووضوح الصور المرفقة.</li>
+                    </ul>
+                </section>
+
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>© 2025 العيادة البيطرية الذكية - جميع الحقوق محفوظة</p>
+        </div>
+    </footer>
+
+    <script src="poultry-diseases-db.js"></script>
+    <script src="poultry-image-analyzer.js"></script>
+    <script src="avian-clinic.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Header Scroll Effect
+            const header = document.getElementById('mainHeader');
+            window.addEventListener('scroll', function () {
+                if (window.scrollY > 50) header.classList.add('scrolled');
+                else header.classList.remove('scrolled');
+            });
+
+            // Mobile Menu
+            const toggle = document.getElementById('mobileMenuToggle');
+            const nav = document.getElementById('mainNav');
+            if(toggle && nav) {
+                toggle.addEventListener('click', () => {
+                    toggle.classList.toggle('active');
+                    nav.classList.toggle('active');
+                });
+            }
+
+            // Counters
+            const stats = document.querySelectorAll('.stat-number');
+            stats.forEach(stat => {
+                const target = parseInt(stat.getAttribute('data-count'));
+                let count = 0;
+                const timer = setInterval(() => {
+                    count += Math.ceil(target / 50);
+                    if(count >= target) {
+                        stat.textContent = target;
+                        clearInterval(timer);
+                    } else {
+                        stat.textContent = count;
+                    }
+                }, 40);
+            });
+        });
+    </script>
+</body>
+</html>

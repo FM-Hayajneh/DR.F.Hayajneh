@@ -1,0 +1,217 @@
+/* تحسينات الأداء العامة */
+.performance-stats {
+    background: linear-gradient(135deg, #f5f7fa 0%, #e4edf5 100%);
+    border-radius: 12px;
+    padding: 20px;
+    margin: 20px 0;
+    border: 1px solid #e0e0e0;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.stats-grid .stat {
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.stats-grid .stat span {
+    display: block;
+    font-size: 0.9rem;
+    color: #666;
+    margin-bottom: 5px;
+}
+
+.stats-grid .stat strong {
+    display: block;
+    font-size: 1.2rem;
+    color: #4361ee;
+}
+
+/* بطاقة النتائج المحسنة */
+.video-result-card {
+    background: white;
+    border-radius: 16px;
+    padding: 25px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+    border-left: 5px solid;
+    margin: 20px 0;
+}
+
+.video-result-card.healthy {
+    border-left-color: #2e7d32;
+}
+
+.video-result-card.warning {
+    border-left-color: #f57c00;
+}
+
+.result-header {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 25px;
+}
+
+.result-icon {
+    font-size: 3rem;
+}
+
+.result-icon .fa-check-circle { color: #2e7d32; }
+.result-icon .fa-exclamation-triangle { color: #f57c00; }
+
+.result-title h3 {
+    margin: 0 0 5px 0;
+    font-size: 1.5rem;
+}
+
+.result-title .confidence {
+    color: #666;
+    font-size: 0.95rem;
+}
+
+.result-stats {
+    display: flex;
+    gap: 20px;
+    margin: 20px 0;
+    flex-wrap: wrap;
+}
+
+.stat-item {
+    flex: 1;
+    min-width: 150px;
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.stat-label {
+    display: block;
+    font-size: 0.9rem;
+    color: #666;
+    margin-bottom: 5px;
+}
+
+.stat-value {
+    display: block;
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: #4361ee;
+}
+
+/* التوصيات */
+.recommendations {
+    background: #fff3e0;
+    border-radius: 8px;
+    padding: 20px;
+    margin: 20px 0;
+    border-right: 4px solid #f57c00;
+}
+
+.recommendations h4 {
+    color: #f57c00;
+    margin: 0 0 10px 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.recommendations ul {
+    padding-right: 20px;
+    margin: 0;
+}
+
+.recommendations li {
+    margin-bottom: 8px;
+    line-height: 1.5;
+}
+
+/* الرسالة الصحية */
+.healthy-message {
+    background: #e8f5e9;
+    border-radius: 8px;
+    padding: 20px;
+    margin: 20px 0;
+    border-right: 4px solid #2e7d32;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.healthy-message i {
+    font-size: 2rem;
+    color: #2e7d32;
+}
+
+.healthy-message p {
+    margin: 0;
+    color: #2e7d32;
+    font-weight: 500;
+}
+
+/* الأعراض التفصيلية */
+.detailed-symptoms {
+    margin-top: 25px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+}
+
+.detailed-symptoms h4 {
+    color: #4361ee;
+    margin: 0 0 15px 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.detailed-symptoms ul {
+    padding-right: 20px;
+    margin: 0;
+}
+
+.detailed-symptoms li {
+    margin-bottom: 8px;
+    padding: 8px;
+    background: #f8f9fa;
+    border-radius: 4px;
+}
+
+/* تحسينات الأداء للرسوم المتحركة */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* تحسينات للشاشات الصغيرة */
+@media (max-width: 768px) {
+    .result-header {
+        flex-direction: column;
+        text-align: center;
+        gap: 10px;
+    }
+    
+    .result-stats {
+        flex-direction: column;
+    }
+    
+    .stat-item {
+        min-width: auto;
+    }
+    
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+}
